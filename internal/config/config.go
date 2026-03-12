@@ -9,7 +9,7 @@ import (
 )
 
 type HTTPServerConfig struct {
-	address string
+	Address string
 }
 type Config struct {
 	//These are called struct tags in go `yaml:"env" env-required:"true"`
