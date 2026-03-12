@@ -1,4 +1,4 @@
 env: "dev"
-storage_path: "storage/storage.db"
+data_base_dsn: "root:vinay@tcp(localhost:3306)/app"
 http_server:
   address: "localhost:8080"

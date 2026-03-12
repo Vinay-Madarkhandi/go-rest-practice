@@ -14,7 +14,7 @@ type HTTPServerConfig struct {
 type Config struct {
 	//These are called struct tags in go `yaml:"env" env-required:"true"`
 	Env              string `yaml:"env" env-required:"true"`
-	StoragePath      string `yaml:"storage_path" env-required:"true"`
+	DataBaseDSN      string `yaml:"data_base_dsn" env-required:"true"`
 	HTTPServerConfig `yaml:"http_server"`
 }
 

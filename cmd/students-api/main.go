@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"log/slog"
 	"net/http"
@@ -12,16 +13,28 @@ import (
 
 	"github.com/Vinay-Madarkhandi/go-rest-practice/internal/config"
 	"github.com/Vinay-Madarkhandi/go-rest-practice/internal/http/handlers/student"
+	"github.com/Vinay-Madarkhandi/go-rest-practice/internal/storage/mysql"
 )
 
 func main() {
+
 	// Load config
 	cfg := config.MustLoad()
+
 	// Database connection
+	db, err := mysql.New(cfg)
+	if err != nil {
+		slog.Error("database connection failed", "error", err)
+		os.Exit(1)
+
+	}
+	slog.Info("database connection established")
+
 	// Setup router
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /api/v1/students", student.CreateStudent())
+	router.HandleFunc("POST /api/v1/students", student.NewStudent(db))
+
 	// Setup server
 	server := http.Server{
 		Addr:    cfg.HTTPServerConfig.Address,
@@ -37,7 +50,7 @@ func main() {
 
 	go func() {
 		err := server.ListenAndServe()
-		if err != nil {
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal("Failed to start server", err)
 		}
 	}()
@@ -50,7 +63,7 @@ func main() {
 
 	defer cancel()
 
-	err := server.Shutdown(ctx)
+	err = server.Shutdown(ctx)
 	if err != nil {
 		slog.Error("Failed to shutdown server:", slog.String("error", err.Error()))
 	}
