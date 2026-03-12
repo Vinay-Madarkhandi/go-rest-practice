@@ -2,9 +2,12 @@ package mysql
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/Vinay-Madarkhandi/go-rest-practice/internal/config"
+	"github.com/Vinay-Madarkhandi/go-rest-practice/internal/types"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -48,4 +51,30 @@ func (m *MySQL) CreateStudent(name string, email string, age int) (int64, error)
 		return 0, err
 	}
 	return db.LastInsertId()
+}
+
+func (m *MySQL) GetById(id int64) (types.Student, error) {
+	stmt, err := m.Db.Prepare("SELECT id, name, email, age FROM students WHERE id = ?")
+	if err != nil {
+		return types.Student{}, err
+	}
+	defer func(stmt *sql.Stmt) {
+		err := stmt.Close()
+		if err != nil {
+			return
+		}
+	}(stmt)
+
+	var student types.Student
+
+	err = stmt.QueryRow(id).Scan(&student.Id, &student.Name, &student.Email, &student.Age)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return types.Student{}, fmt.Errorf("no student found with id %s", fmt.Sprint(id))
+		}
+		return types.Student{}, fmt.Errorf("query error: %w", err)
+	}
+
+	return student, nil
+
 }

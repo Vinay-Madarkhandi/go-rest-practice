@@ -6,6 +6,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/Vinay-Madarkhandi/go-rest-practice/internal/storage"
 	"github.com/Vinay-Madarkhandi/go-rest-practice/internal/types"
@@ -69,6 +70,43 @@ func NewStudent(storage storage.Storage) http.HandlerFunc {
 			if err != nil {
 				slog.Error("error while writing response", slog.String("Error", err.Error()))
 			}
+			return
+		}
+
+	}
+}
+
+func GetStudentByID(storage storage.Storage) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
+
+		slog.Info("Getting student by ID", slog.String("id", id))
+
+		intId, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			slog.Error("Error while parsing", slog.String("Error", err.Error()))
+			err = response.WriteJSON(writer, http.StatusBadRequest, response.GeneralError(err))
+			if err != nil {
+				slog.Error("error while writing response", slog.String("Error", err.Error()))
+				return
+			}
+			return
+		}
+
+		student, err := storage.GetById(intId)
+		if err != nil {
+			slog.Error("Error while getting student", slog.String("Error", err.Error()))
+			err := response.WriteJSON(writer, http.StatusInternalServerError, response.GeneralError(err))
+			if err != nil {
+				slog.Error("error while writing response", slog.String("Error", err.Error()))
+				return
+			}
+			return
+		}
+
+		err = response.WriteJSON(writer, http.StatusOK, student)
+		if err != nil {
+			slog.Error("error while writing response", slog.String("Error", err.Error()))
 			return
 		}
 
