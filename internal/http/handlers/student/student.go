@@ -49,18 +49,18 @@ func CreateStudent() http.HandlerFunc {
 
 		// Creating Student
 		slog.Info("Creating a Student")
-		e := response.WriteJSON(
+		err = response.WriteJSON(
 			writer,
 			http.StatusCreated,
 			types.StudentCreatedDTO{
 				Success: true,
 				Data:    student,
 			})
-		if e != nil {
-			slog.Error("Error while creating the student", slog.String("Error", e.Error()))
-			err := response.WriteJSON(writer, http.StatusInternalServerError, response.GeneralError(e))
+		if err != nil {
+			slog.Error("Error while creating the student", slog.String("Error", err.Error()))
+			err := response.WriteJSON(writer, http.StatusInternalServerError, response.GeneralError(err))
 			if err != nil {
-				slog.Error("error while writing response", slog.String("Error", e.Error()))
+				slog.Error("error while writing response", slog.String("Error", err.Error()))
 			}
 			return
 		}
