@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Vinay-Madarkhandi/go-rest-practice/internal/config"
+	"github.com/Vinay-Madarkhandi/go-rest-practice/internal/http/handlers/student"
 )
 
 func main() {
@@ -20,13 +21,7 @@ func main() {
 	// Setup router
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /api/v1/students", func(writer http.ResponseWriter, request *http.Request) {
-		_, err := writer.Write([]byte("students"))
-		if err != nil {
-			return
-		}
-
-	})
+	router.HandleFunc("POST /api/v1/students", student.CreateStudent())
 	// Setup server
 	server := http.Server{
 		Addr:    cfg.HTTPServerConfig.Address,
